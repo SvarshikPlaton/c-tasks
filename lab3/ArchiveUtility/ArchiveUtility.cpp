@@ -1,9 +1,4 @@
-#include <iostream>
-
-#define WIN32_LEAN_AND_MEAN
-#include <Windows.h>
-
-#include <tchar.h>
+#include "stdafx.h"
 
 bool fileExists(const TCHAR* path) {
     DWORD attribs = GetFileAttributes(path);
