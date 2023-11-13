@@ -1,2 +1,5 @@
 .vs/
 x64/
+bin/
+obj/
+lab5/
