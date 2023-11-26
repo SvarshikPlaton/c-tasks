@@ -80,10 +80,12 @@ DWORD run7Zip(const TCHAR* args) {
 }
 
 void createArchive(const TCHAR* srcPath, const TCHAR* dstPath) {
+    /*
     if (!fileExists(srcPath)) {
         std::cerr << "Error: Source file doesn't exist.\n";
         return;
     }
+    */
 
     TCHAR* args = new TCHAR[MAX_PATH];
     _sntprintf_s(args, MAX_PATH, MAX_PATH, _T("a %s %s"), dstPath, srcPath);
@@ -92,15 +94,20 @@ void createArchive(const TCHAR* srcPath, const TCHAR* dstPath) {
     if (exitCode == 0) {
         std::cout << "Done.\n";
     }
+    else {
+        std::cout << "Error. Exit code: "<< exitCode << std::endl;
+    }
 
     delete[] args;
 }
 
 void extractArchive(const TCHAR* srcPath, const TCHAR* dstPath) {
+    /*
     if (!fileExists(srcPath)) {
         std::cerr << "Error: Source archive doesn't exist.\n";
         return;
     }
+    */
 
     TCHAR* args = new TCHAR[MAX_PATH];;
     _sntprintf_s(args, MAX_PATH, MAX_PATH, _T("x %s -o%s"), srcPath, dstPath);
@@ -108,6 +115,9 @@ void extractArchive(const TCHAR* srcPath, const TCHAR* dstPath) {
 
     if (exitCode == 0) {
         std::cout << "Done.\n";
+    }
+    else {
+        std::cout << "Error. Exit code: " << exitCode << std::endl;
     }
 
     delete[] args;

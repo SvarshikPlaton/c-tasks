@@ -1,45 +1,70 @@
 #include "stdafx.h"
 
-DWORD tlsIndex;
+DWORD tlsDividers;
+DWORD tlsSum;
 
 struct ThreadContext {
 	int id;
 	std::vector<int> data;
 };
 
+std::string joinArray(int* data, int size) {
+	std::stringstream stream;
+
+	for (int i = 0; i < size - 1; ++i) {
+		stream << data[i] << ", ";
+	}
+
+	stream << data[size - 1];
+	return stream.str();
+}
+
 int randomInteger(int lowerBound, int upperBound) {
 	return lowerBound + std::rand() % (upperBound - lowerBound);
 }
 
-int findGCD(int a, int b) {
-	while (b != 0) {
-		int temp = b;
-		b = a % b;
-		a = temp;
-	}
-
-	return a;
+int findGreatestDivisor(int number) {
+	int divider = number;
+	do
+	{
+		divider--;
+	} while (number % divider != 0);
+	return divider;
 }
 
-void calculateGCD(ThreadContext* ctx) {
+void calculateGD(ThreadContext* ctx) {
 	std::vector<int> data = ctx->data;
-	int gcd = data[0];
 
-	for (int i = 1; i < data.size(); ++i) {
-		gcd = findGCD(gcd, data[i]);
+	int* divisors = (int*)LocalAlloc(LPTR, data.size() * sizeof(int));
+	int sum = 0;
+	if (!TlsSetValue(tlsDividers, divisors)) {
+		std::cerr << std::format("Error: TlsSetValue failed for {}\n", ctx->id);
+		return;
+	}
+	if (!TlsSetValue(tlsSum, (LPVOID)sum)) {
+		std::cerr << std::format("Error: TlsSetValue failed for {}\n", ctx->id);
+		return;
 	}
 
-	if (!TlsSetValue(tlsIndex, (LPVOID)gcd)) {
-		std::cerr << std::format("Error: TlsSetValue failed for {}\n", ctx->id);
+	for (int i = 0; i < data.size(); ++i) {
+		divisors[i] = findGreatestDivisor(data[i]);
+		sum += divisors[i];
 	}
 }
 
-DWORD gcdThreadEntryPoint(LPVOID param) {
+DWORD gdThreadEntryPoint(LPVOID param) {
 	ThreadContext* ctx = (ThreadContext*)param;
-	calculateGCD(ctx);
+	calculateGD(ctx);
 
-	int result = (int)TlsGetValue(tlsIndex);
-	std::cout << std::format("[{}] Done: {}.\n", ctx->id, result);
+	int* resultDividers = (int*)TlsGetValue(tlsDividers);
+	int resultSum = (int)TlsGetValue(tlsSum);
+	std::cout << std::format("[{}] Done.\nOriginal array: {}.\nModified array: {}.\nSum: {}.\n",
+		ctx->id,
+		joinArray(&ctx->data[0], ctx->data.size()),
+		joinArray(resultDividers, ctx->data.size()),
+		resultSum
+	);
+	
 	return 0;
 }
 
@@ -62,10 +87,15 @@ int main(int argc, char** argv)
 	std::cout << std::format("Number of threads: {}\n", threadCount);
 	std::srand(std::time(nullptr));
 
-	tlsIndex = TlsAlloc();
-	if (tlsIndex == TLS_OUT_OF_INDEXES) {
-		std::cerr << "Error: TLS allocation error.\n";
-		return 1;
+	tlsDividers = TlsAlloc();
+	if (tlsDividers == TLS_OUT_OF_INDEXES) {
+		std::cerr << "Error: Divider TLS allocation error.\n";
+		return 2;
+	}
+	tlsSum = TlsAlloc();
+	if (tlsDividers == TLS_OUT_OF_INDEXES) {
+		std::cerr << "Error: Sum TLS allocation error.\n";
+		return 3;
 	}
 
 	std::vector<std::vector<int>> data(threadCount);
@@ -78,7 +108,7 @@ int main(int argc, char** argv)
 		threads[i].id = i;
 		threads[i].data = data[i];
 
-		threadHandles[i] = CreateThread(NULL, 0, gcdThreadEntryPoint, &threads[i], 0, NULL);
+		threadHandles[i] = CreateThread(NULL, 0, gdThreadEntryPoint, &threads[i], 0, NULL);
 		if (threadHandles[i] == INVALID_HANDLE_VALUE) {
 			std::cerr << std::format("Failed to create thread {}.\n", i);
 		}
@@ -87,6 +117,7 @@ int main(int argc, char** argv)
 	WaitForMultipleObjects(threadCount, threadHandles, TRUE, INFINITE);
 
 
-	TlsFree(tlsIndex);
+	TlsFree(tlsDividers);
+	TlsFree(tlsSum);
 	delete[] threadHandles;
 }
