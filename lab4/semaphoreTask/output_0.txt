@@ -1,1 +1,0 @@
-Thread 0 writing data at 17:32:58.384

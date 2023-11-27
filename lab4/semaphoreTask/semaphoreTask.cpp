@@ -3,7 +3,8 @@
 const int MAX_FILE_POINTERS = 3;
 const int NUM_THREADS = 5;      
 
-HANDLE fileSemaphore;          
+HANDLE fileSemaphore;
+HANDLE hFile;
 
 std::string getTime() {
     FILETIME currentTime;
@@ -24,37 +25,21 @@ int randomInteger(int lowerBound, int upperBound) {
     return lowerBound + std::rand() % (upperBound - lowerBound);
 }
 
-void writeToFile(int threadID) {
+DWORD WINAPI writeToFile(LPVOID lpParam) {
+    int threadID = (int)lpParam;
+
     Sleep(randomInteger(1, 3) * 1000);
 
     WaitForSingleObject(fileSemaphore, INFINITE);
-    std::string filename = "output_" + std::to_string(threadID) + ".txt";
-    HANDLE hFile = CreateFileA(
-        filename.c_str(),
-        GENERIC_WRITE,
-        0,
-        NULL,
-        CREATE_ALWAYS,
-        FILE_ATTRIBUTE_NORMAL,
-        NULL
-    );
 
-    if (hFile != INVALID_HANDLE_VALUE) {
-        {
-            std::cout << std::format("Thread {} writing to {}.\n", threadID, filename);
-        }
-        std::string data = "Thread " + std::to_string(threadID) + " writing data at " + getTime() + "\n";
-        WriteFile(hFile, data.c_str(), static_cast<DWORD>(data.size()), NULL, NULL);
-        Sleep(randomInteger(1, 3) * 1000);
+    std::string data = "Thread " + std::to_string(threadID) + " writing data at " + getTime() + "\n";
+    WriteFile(hFile, data.c_str(), static_cast<DWORD>(data.size()), NULL, NULL);
 
-        CloseHandle(hFile);
-        ReleaseSemaphore(fileSemaphore, 1, NULL);
-        std::cout << std::format("Thread {} finished writing to {}.\n", threadID, filename);
-    }
-    else {
-        std::cerr << std::format("Thread {} failed to open file {}.\n", threadID, filename);
-        ReleaseSemaphore(fileSemaphore, 1, NULL);
-    }
+    Sleep(randomInteger(1, 3) * 1000);
+
+    ReleaseSemaphore(fileSemaphore, 1, NULL);
+
+    return 0;
 }
 
 int main() {
@@ -65,15 +50,34 @@ int main() {
         return 1;
     }
 
-    std::thread threads[NUM_THREADS];
-    for (int i = 0; i < NUM_THREADS; ++i) {
-        threads[i] = std::thread(writeToFile, i);
+    hFile = CreateFileA(
+        "output.txt",
+        GENERIC_WRITE,
+        0,
+        NULL,
+        CREATE_ALWAYS,
+        FILE_ATTRIBUTE_NORMAL,
+        NULL
+    );
+
+    if (hFile == INVALID_HANDLE_VALUE) {
+        std::cerr << "Failed to open file." << std::endl;
+        CloseHandle(fileSemaphore);
+        return 1;
     }
 
+    HANDLE threads[NUM_THREADS];
     for (int i = 0; i < NUM_THREADS; ++i) {
-        threads[i].join();
+        threads[i] = CreateThread(NULL, 0, writeToFile, (LPVOID)i, 0, NULL);
     }
 
+    WaitForMultipleObjects(NUM_THREADS, threads, TRUE, INFINITE);
+
+    for (int i = 0; i < NUM_THREADS; ++i) {
+        CloseHandle(threads[i]);
+    }
+
+    CloseHandle(hFile);
     CloseHandle(fileSemaphore);
 
     return 0;

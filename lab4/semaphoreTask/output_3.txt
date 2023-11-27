@@ -1,1 +1,0 @@
-Thread 3 writing data at 17:32:58.384
