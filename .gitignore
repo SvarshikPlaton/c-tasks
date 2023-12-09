@@ -2,4 +2,5 @@
 x64/
 bin/
 obj/
-lab5/
+
+!lab5/7z-utility/bin/

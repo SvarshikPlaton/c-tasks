@@ -1,0 +1,27 @@
+﻿<Window x:Class="_7z_utility.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:_7z_utility"
+        mc:Ignorable="d"
+        Title="MainWindow" Height="450" Width="800">
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="433*"/>
+            <ColumnDefinition Width="367*"/>
+        </Grid.ColumnDefinitions>
+        <Button x:Name="runButtom" Content="Zip/Unzip" HorizontalAlignment="Left" Margin="112,45,0,0" VerticalAlignment="Top" Width="80" Height="20" Background="White" Click="RunButtomClick" />
+        <Button x:Name="chooseFileButton" Content="Choose file" HorizontalAlignment="Left" Margin="10,45,0,0" VerticalAlignment="Top" Width="80" Height="20" BorderBrush="#FF707070" Background="White" Cursor="Arrow" Click="ChooseFileButtonClick"/>
+        <ListBox x:Name="logBox" d:ItemsSource="{d:SampleData ItemCount=5}" Margin="10,97,33,10"/>
+        <RichTextBox x:Name="outBox" Grid.ColumnSpan="2" Margin="400,97,10,10" IsReadOnly="True">
+            <FlowDocument>
+                <Paragraph>
+                    <Run Text=""/>
+                </Paragraph>
+            </FlowDocument>
+        </RichTextBox>
+        <TextBox x:Name="currentFile" HorizontalAlignment="Left" Margin="10,70,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="780" Grid.ColumnSpan="2" Height="22"/>
+
+    </Grid>
+</Window>
