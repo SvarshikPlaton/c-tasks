@@ -92,7 +92,7 @@ namespace _7z_utility
             ofd.Filter = "7zip files (*.7z)|*.7z|All files (*.*)|*.*";
             ofd.FilterIndex = 2;
 
-            if (ofd.ShowDialog() == true)
+            if (ofd.ShowDialog())
             {
                 currentFile.Text = ofd.FileName;
             }

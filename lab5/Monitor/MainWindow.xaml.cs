@@ -50,21 +50,20 @@ namespace Monitor
             int threadNumber = (int)threadNumberObj;
             Random random = new Random();
 
-            System.Threading.Monitor.Enter(this);
-
             int randomDelay = random.Next(1000); 
             Thread.Sleep(randomDelay);
 
             DateTime currentTime = DateTime.Now;
             string logMessage = $"Thread {threadNumber}: {currentTime:HH:mm:ss.fff} - Delay: {randomDelay} ms";
 
+            System.Threading.Monitor.Enter(logger);
             logger.Log(logMessage);
+            System.Threading.Monitor.Exit(logger);
+
             Dispatcher.InvokeAsync(() =>
             {
                 threadStatusList.Items.Add(logMessage);
             });
-
-            System.Threading.Monitor.Exit(this);
         }
     }
 }
