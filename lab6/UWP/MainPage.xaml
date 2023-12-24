@@ -1,0 +1,40 @@
+﻿<Page
+    x:Class="UWP.MainPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" xmlns:uwp="using:UWP"
+    mc:Ignorable="d"
+    Background="{ThemeResource ApplicationPageBackgroundThemeBrush}"
+    Loaded="Page_Loaded">
+
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="1*"></ColumnDefinition>
+            <ColumnDefinition Width="3*"></ColumnDefinition>
+        </Grid.ColumnDefinitions>
+
+        <ListView Name="RootListView" IsItemClickEnabled="True" ItemClick="ListView_ItemClick">
+            <ListView.ItemTemplate>
+                <DataTemplate>
+                    <StackPanel Orientation="Horizontal" Spacing="15">
+                        <SymbolIcon Symbol="{Binding Icon}"></SymbolIcon>
+                        <StackPanel Orientation="Vertical">
+                            <TextBlock Text="{Binding Name}" FontSize="24"></TextBlock>
+                            <TextBlock Text="{Binding Description}" FontSize="16"></TextBlock>
+                        </StackPanel>
+                    </StackPanel>
+                </DataTemplate>
+            </ListView.ItemTemplate>
+            <ListView.Items>
+                <uwp:MenuItem Icon="Home" Name="Home" Identifier="Home" Description="Start page"></uwp:MenuItem>
+                <uwp:MenuItem Icon="Contact" Name="About" Identifier="About" Description="About the author"></uwp:MenuItem>
+                <uwp:MenuItem Icon="Calculator" Name="Unit Converter" Identifier="UnitConverter" Description="Unit Conversion"></uwp:MenuItem>
+            </ListView.Items>
+        </ListView>
+
+        <Frame x:Name="MainFrame" Grid.Column="1" Padding="25 0 25 0"/>
+    </Grid>
+</Page>
+    
+
