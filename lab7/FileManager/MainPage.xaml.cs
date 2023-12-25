@@ -166,11 +166,18 @@ namespace FileManager
                 return;
             }
 
-            var folder = await StorageFolder.GetFolderFromPathAsync(fileListItems[FileListView.SelectedIndex].Path);
-            await folder.DeleteAsync();
+            try
+            {
+                var folder = await StorageFolder.GetFolderFromPathAsync(fileListItems[FileListView.SelectedIndex].Path);
+                await folder.DeleteAsync();
 
-            var workingFolder = await StorageFolder.GetFolderFromPathAsync(WorkingDirectoryTextBox.Text);
-            ReloadFileListContents(workingFolder);
+                var workingFolder = await StorageFolder.GetFolderFromPathAsync(WorkingDirectoryTextBox.Text);
+                ReloadFileListContents(workingFolder);
+            }
+            catch (Exception ex)
+            {
+                ShowErrorMessage(ex.Message);
+            }
         }
 
         private async void SizeUnitCombobox_SelectionChanged(object sender, SelectionChangedEventArgs e)
