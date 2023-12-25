@@ -23,6 +23,11 @@ namespace UWP.Pages
     /// </summary>
     public sealed partial class UnitConverterPage : Page
     {
+        const double LITERS_PER_GALLON = 0.264172052358148;
+        const int HECTAR = 100;
+        const int KILOMETER = 1000;
+        const double MILE = 1609.344;
+        const double YARD = 0.9144;
         public UnitConverterPage()
         {
             this.InitializeComponent();
@@ -31,14 +36,18 @@ namespace UWP.Pages
         private void ConvertLitersPer100kmToMpg(object sender, RoutedEventArgs e)
         {
             var litersPerHundredKm = double.Parse(LitersPer100kmInput.Text);
-            var mpg = litersPerHundredKm * 235.21;
+
+            double gallons = litersPerHundredKm * (MILE / KILOMETER) / 100;
+            gallons /= LITERS_PER_GALLON;
+            var mpg = 1 / gallons;
             MpgInput.Text = $"{mpg}";
         }
 
         private void ConvertMpgToLitersPer100km(object sender, RoutedEventArgs e)
         {
             var mpg = double.Parse(MpgInput.Text);
-            var litersPer100km = mpg / 235.21; 
+            double kmPerLiter = (MILE / KILOMETER) / mpg * LITERS_PER_GALLON;
+            double litersPer100km = 100 / kmPerLiter;
             LitersPer100kmInput.Text = $"{litersPer100km}";
         }
 
@@ -52,14 +61,10 @@ namespace UWP.Pages
             switch (sourceUnit)
             {
                 case "Square Kilometers":
-                    const int kilometer = 1000;
-                    const int squareKilometer = kilometer * kilometer;
-                    squareMeters = sourceValue * squareKilometer;
+                    squareMeters = sourceValue * (KILOMETER * KILOMETER);
                     break;
                 case "Hectares":
-                    const int hectar = 100;
-                    const int squareHectar = hectar * hectar;
-                    squareMeters = sourceValue * squareHectar;
+                    squareMeters = sourceValue * (HECTAR * HECTAR);
                     break;
                 case "Square Meters":
                     squareMeters = sourceValue;
@@ -73,14 +78,10 @@ namespace UWP.Pages
             switch (targetUnit)
             {
                 case "Square Miles":
-                    const double mile = 1609.344;
-                    const double squareMile = mile * mile;
-                    targetValue = squareMeters / squareMile;
+                    targetValue = squareMeters / (MILE * MILE);
                     break;
                 case "Square Yards":
-                    const double yard = 0.9144;
-                    const double squareYard = yard * yard;
-                    targetValue = squareMeters / squareYard;
+                    targetValue = squareMeters / (YARD * YARD);
                     break;
                 default:
                     return;
