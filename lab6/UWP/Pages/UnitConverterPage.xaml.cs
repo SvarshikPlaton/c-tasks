@@ -12,6 +12,7 @@ using Windows.UI.Xaml.Data;
 using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Navigation;
+using static System.Net.WebRequestMethods;
 
 // The Blank Page item template is documented at https://go.microsoft.com/fwlink/?LinkId=234238
 
@@ -51,14 +52,20 @@ namespace UWP.Pages
             switch (sourceUnit)
             {
                 case "Square Kilometers":
-                    squareMeters = sourceValue * 1e6;
+                    const int kilometer = 1000;
+                    const int squareKilometer = kilometer * kilometer;
+                    squareMeters = sourceValue * squareKilometer;
                     break;
                 case "Hectares":
-                    squareMeters = sourceValue * 1e4;
+                    const int hectar = 100;
+                    const int squareHectar = hectar * hectar;
+                    squareMeters = sourceValue * squareHectar;
                     break;
-                default:
+                case "Square Meters":
                     squareMeters = sourceValue;
                     break;
+                default:
+                    return;
             }
 
 
@@ -66,11 +73,17 @@ namespace UWP.Pages
             switch (targetUnit)
             {
                 case "Square Miles":
-                    targetValue = squareMeters * 3.861e-7;
+                    const double mile = 1609.344;
+                    const double squareMile = mile * mile;
+                    targetValue = squareMeters / squareMile;
                     break;
-                default: 
-                    targetValue = squareMeters * 1.196;
+                case "Square Yards":
+                    const double yard = 0.9144;
+                    const double squareYard = yard * yard;
+                    targetValue = squareMeters / squareYard;
                     break;
+                default:
+                    return;
             }
 
             TargetAreaInput.Text = $"{targetValue}";
